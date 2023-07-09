@@ -47,7 +47,7 @@ def reset():
 
 root = Tk()
 root.title("Split Cost")
-root.iconbitmap("icon.ico")
+root.iconbitmap("sc-logo.ico")
 root.resizable(width=False, height=False)
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)

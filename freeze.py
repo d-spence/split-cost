@@ -4,12 +4,12 @@ import os
 #delete the old build drive
 os.system("rmdir /s /q dist")
 
-icon_path = r".\icon.ico"
-script_path = r".\split-cost-tk.py"
+icon_path = "sc-logo.ico"
+script_path = "split-cost-tk.pyw"
 
 freeze(
     windows=[{
-        'script': 'split-cost-tk.py',
+        'script': script_path,
         'dest_base': 'split-cost',
         'bitmap_resources': [(1, icon_path)],
         'icon_resources': [(1, icon_path)],
