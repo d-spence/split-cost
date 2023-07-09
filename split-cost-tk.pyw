@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+from idlelib.tooltip import Hovertip
 
 def calculate(*args):
     try:
@@ -27,12 +28,26 @@ def calculate(*args):
         status_lbl.config(foreground="dark red")
         status_text.set('Total deductions cannot be greater than total cost')
         return
+    
+    total_p1 = split_cost + deductions_p1_f
+    total_p2 = split_cost + deductions_p2_f
 
-    results_p1.set(f'${split_cost + deductions_p1_f:.2f}')
-    results_p2.set(f'${split_cost + deductions_p2_f:.2f}')
+    # Update results labels
+    results_p1.set(f'${total_p1:.2f}')
+    results_p2.set(f'${total_p2:.2f}')
+
+    # Update results tooltips
+    Hovertip(results_p1_lbl_2,
+         f'Formula (Person 1): (({total_f:.2f} - {total_deductions:.2f}) / 2) '
+         f'+ {deductions_p1_f:.2f} = {total_p1:.2f}')
+    
+    Hovertip(results_p2_lbl_2,
+         f'Formula (Person 2): (({total_f:.2f} - {total_deductions:.2f}) / 2) '
+         f'+ {deductions_p2_f:.2f} = {total_p2:.2f}')
+
+    # Display a statusbar message
     status_lbl.config(foreground="dark green")
-    status_text.set(f'Formula (P1): (({total_f:.2f} - {total_deductions:.2f}) / 2) '
-                    f'+ {deductions_p1_f:.2f} = {split_cost + deductions_p1_f:.2f}')
+    status_text.set('Split cost calculated!')
 
 
 def sum_deductions(deductions: str):
@@ -83,23 +98,35 @@ ttk.Label(mainframe, text="Total: $", font=font_h1).grid(column=1, row=1, sticky
 total = StringVar()
 total_entry = ttk.Entry(mainframe, width=8, textvariable=total, font=font_h1)
 total_entry.grid(column=2, row=1, sticky=W)
+Hovertip(total_entry, 'Total can be an integer or decimal value')
 
 # Deductions frame
 deductions_frame = ttk.Labelframe(mainframe, text="Deductions")
 deductions_frame.grid(column=1, row=2, columnspan=2, sticky=(W, E))
 deductions_frame.columnconfigure(2, weight=1)
 
-ttk.Label(deductions_frame, text="Person 1: $", font=font_p).grid(column=1, row=2, sticky=E)
+deductions_tooltip_1 = ("Deductions are for items which will not be shared.\n"
+                        "For instance, if Person 1 has a deduction for an item\n"
+                        "costing $5, Person 2 won't have to pay for any of it.")
+deductions_tooltip_2 = "Deductions can be integer or decimal values separated by a space"
+
+deductions_p1_lbl = ttk.Label(deductions_frame, text="Person 1: $", font=font_p)
+deductions_p1_lbl.grid(column=1, row=2, sticky=E)
+Hovertip(deductions_p1_lbl, deductions_tooltip_1)
 
 deductions_p1 = StringVar()
 deductions_p1_entry = ttk.Entry(deductions_frame, width=24, textvariable=deductions_p1, font=font_p)
 deductions_p1_entry.grid(column=2, row=2, sticky=(W, E))
+Hovertip(deductions_p1_entry, deductions_tooltip_2)
 
-ttk.Label(deductions_frame, text="Person 2: $", font=font_p).grid(column=1, row=3, sticky=E)
+deductions_p2_lbl = ttk.Label(deductions_frame, text="Person 2: $", font=font_p)
+deductions_p2_lbl.grid(column=1, row=3, sticky=E)
+Hovertip(deductions_p2_lbl, deductions_tooltip_1)
 
 deductions_p2 = StringVar()
 deductions_p2_entry = ttk.Entry(deductions_frame, width=24, textvariable=deductions_p2, font=font_p)
 deductions_p2_entry.grid(column=2, row=3, sticky=(W, E))
+Hovertip(deductions_p2_entry, deductions_tooltip_2)
 
 # Calculate button
 calculate_btn = ttk.Button(mainframe, text="Calculate", command=calculate)
@@ -111,12 +138,16 @@ results_frame.grid(column=1, row=4, columnspan=2, sticky=(W, E))
 results_frame.columnconfigure(2, weight=1)
 
 results_p1 = StringVar()
-ttk.Label(results_frame, text="Person 1 Owes:", font=font_p).grid(column=1, row=1, sticky=E)
-ttk.Label(results_frame, textvariable=results_p1, font=font_h2).grid(column=2, row=1, sticky=E)
+results_p1_lbl_1 = ttk.Label(results_frame, text="Person 1 Owes:", font=font_p)
+results_p1_lbl_1.grid(column=1, row=1, sticky=E)
+results_p1_lbl_2 = ttk.Label(results_frame, textvariable=results_p1, font=font_h2)
+results_p1_lbl_2.grid(column=2, row=1, sticky=E)
 
 results_p2 = StringVar()
-ttk.Label(results_frame, text="Person 2 Owes:", font=font_p).grid(column=1, row=2, sticky=E)
-ttk.Label(results_frame, textvariable=results_p2, font=font_h2).grid(column=2, row=2, sticky=E)
+results_p2_lbl_1 = ttk.Label(results_frame, text="Person 2 Owes:", font=font_p)
+results_p2_lbl_1.grid(column=1, row=2, sticky=E)
+results_p2_lbl_2 = ttk.Label(results_frame, textvariable=results_p2, font=font_h2)
+results_p2_lbl_2.grid(column=2, row=2, sticky=E)
 
 # Reset button
 reset_btn = ttk.Button(mainframe, text="Reset", command=reset)
