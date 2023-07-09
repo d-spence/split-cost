@@ -61,6 +61,10 @@ def sum_deductions(deductions: str):
     return value
 
 
+def update_ui():
+    print("value =", split_val.get())
+
+
 def reset():
     var_list = [total, deductions_p1, deductions_p2, results_p1, results_p2]
     for v in var_list: v.set('')
@@ -87,6 +91,8 @@ statusbar.grid(column=1, row=2, sticky=(N, W, E, S))
 statusbar.columnconfigure(1, weight=1)
 statusbar.rowconfigure(1, weight=1)
 
+split_val = IntVar(value=2)
+
 # Font styles
 font_h1 = ("Arial", 14, "bold")
 font_h2 = ("Arial", 10, "bold")
@@ -100,9 +106,18 @@ total_entry = ttk.Entry(mainframe, width=8, textvariable=total, font=font_h1)
 total_entry.grid(column=2, row=1, sticky=W)
 Hovertip(total_entry, 'Total can be an integer or decimal value')
 
+# Split frame
+split_frame = ttk.Labelframe(mainframe, text="Split")
+split_frame.grid(column=1, row=2, columnspan=2, sticky=(W, E))
+
+ttk.Radiobutton(split_frame, text="2-way", variable=split_val, value=2, command=update_ui)
+ttk.Radiobutton(split_frame, text="3-way", variable=split_val, value=3, command=update_ui)
+ttk.Radiobutton(split_frame, text="4-way", variable=split_val, value=4, command=update_ui)
+ttk.Radiobutton(split_frame, text="5-way", variable=split_val, value=5, command=update_ui)
+
 # Deductions frame
 deductions_frame = ttk.Labelframe(mainframe, text="Deductions")
-deductions_frame.grid(column=1, row=2, columnspan=2, sticky=(W, E))
+deductions_frame.grid(column=1, row=3, columnspan=2, sticky=(W, E))
 deductions_frame.columnconfigure(2, weight=1)
 
 deductions_tooltip_1 = ("Deductions are for items which will not be shared.\n"
@@ -130,11 +145,11 @@ Hovertip(deductions_p2_entry, deductions_tooltip_2)
 
 # Calculate button
 calculate_btn = ttk.Button(mainframe, text="Calculate", command=calculate)
-calculate_btn.grid(column=1, row=3, columnspan=2, sticky=(W, E))
+calculate_btn.grid(column=1, row=4, columnspan=2, sticky=(W, E))
 
 # Results frame
 results_frame = ttk.Labelframe(mainframe, text="Results")
-results_frame.grid(column=1, row=4, columnspan=2, sticky=(W, E))
+results_frame.grid(column=1, row=5, columnspan=2, sticky=(W, E))
 results_frame.columnconfigure(2, weight=1)
 
 results_p1 = StringVar()
@@ -151,7 +166,7 @@ results_p2_lbl_2.grid(column=2, row=2, sticky=E)
 
 # Reset button
 reset_btn = ttk.Button(mainframe, text="Reset", command=reset)
-reset_btn.grid(column=1, row=5, columnspan=2)
+reset_btn.grid(column=1, row=6, columnspan=2)
 
 # Status bar
 status_text = StringVar()
@@ -162,6 +177,9 @@ status_lbl.grid(column=1, row=2, sticky=W)
 # Add padding to frames
 for child in mainframe.winfo_children():
     child.grid_configure(padx=5, pady=5)
+
+for i, child in enumerate(split_frame.winfo_children()):
+    child.grid_configure(column=i+1, row=1, padx=5, pady=5, sticky=(W, E))
 
 for child in deductions_frame.winfo_children():
     child.grid_configure(padx=5, pady=5)
