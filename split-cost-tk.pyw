@@ -2,14 +2,12 @@ from tkinter import *
 from tkinter import ttk
 
 def calculate(*args):
-    print('Calculating...')
-    
     try:
         total_f = float(total.get())
 
         if total_f <= 0: raise ValueError
     except ValueError:
-        print('Total must be an integer or decimal value greater than 0')
+        status_text.set('Total must be an integer/decimal greater than 0')
         return
 
     deductions_p1_f = sum_deductions(deductions_p1.get())
@@ -20,7 +18,7 @@ def calculate(*args):
     split_cost = total_minus_deductions / 2
 
     if total_deductions > total_f:
-        print('Total deductions cannot be greater than total cost')
+        status_text.set('Total deductions cannot be greater than total cost')
         return
 
     results_p1.set(f'${split_cost + deductions_p1_f:.2f}')
@@ -33,8 +31,7 @@ def sum_deductions(deductions: str):
         try:
             value += 0 if (d == '') else float(d)
         except ValueError:
-            print('Deduction values must be integers or decimals separated by a space')
-            return 0
+            status_text.set('Deductions must be number values separated by a space')
         
     return value
 
@@ -42,24 +39,34 @@ def sum_deductions(deductions: str):
 def reset():
     var_list = [total, deductions_p1, deductions_p2, results_p1, results_p2]
     for v in var_list: v.set('')
+    status_text.set('')
     total_entry.focus()
 
 
+# Graphical User Interface
 root = Tk()
 root.title("Split Cost")
 root.iconbitmap("sc-logo.ico")
 root.resizable(width=False, height=False)
-root.columnconfigure(0, weight=1)
-root.rowconfigure(0, weight=1)
+root.columnconfigure(1, weight=1)
+root.rowconfigure(1, weight=1)
 
 mainframe = ttk.Frame(root, padding="5 5 5 5")
-mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
+mainframe.grid(column=1, row=1, sticky=(N, W, E, S))
 mainframe.columnconfigure(1, weight=1)
 mainframe.columnconfigure(2, weight=1)
 
+ttk.Style().configure("Statusbar.TFrame", background="#ddd")
+statusbar = ttk.Frame(root, style="Statusbar.TFrame")
+statusbar.grid(column=1, row=2, sticky=(N, W, E, S))
+statusbar.columnconfigure(1, weight=1)
+statusbar.rowconfigure(1, weight=1)
+
+# Font styles
 font_h1 = ("Arial", 14, "bold")
 font_h2 = ("Arial", 10, "bold")
 font_p = ("Arial", 10, "normal")
+font_sm = ("Arial", 8, "normal")
 
 ttk.Label(mainframe, text="Total: $", font=font_h1).grid(column=1, row=1, sticky=E)
 
@@ -104,6 +111,12 @@ ttk.Label(results_frame, textvariable=results_p2, font=font_h2).grid(column=2, r
 # Reset button
 reset_btn = ttk.Button(mainframe, text="Reset", command=reset)
 reset_btn.grid(column=1, row=5, columnspan=2)
+
+# Status bar
+status_text = StringVar()
+ttk.Separator(statusbar).grid(column=1, row=1, sticky=(W, E))
+status_lbl = ttk.Label(statusbar, textvariable=status_text, font=font_sm, background="#ddd")
+status_lbl.grid(column=1, row=2, sticky=W)
 
 # Add padding to frames
 for child in mainframe.winfo_children():
