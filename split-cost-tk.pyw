@@ -7,22 +7,32 @@ def calculate(*args):
 
         if total_f <= 0: raise ValueError
     except ValueError:
-        status_text.set('Total must be an integer/decimal greater than 0')
+        status_lbl.config(foreground="dark red")
+        status_text.set('Total must be a number value greater than 0')
         return
 
     deductions_p1_f = sum_deductions(deductions_p1.get())
     deductions_p2_f = sum_deductions(deductions_p2.get())
+
+    if deductions_p1_f < 0 or deductions_p2_f < 0:
+        status_lbl.config(foreground="dark red")
+        status_text.set('Deductions are number values separated by a space')
+        return
     
     total_deductions = deductions_p1_f + deductions_p2_f
     total_minus_deductions = total_f - total_deductions
     split_cost = total_minus_deductions / 2
 
     if total_deductions > total_f:
+        status_lbl.config(foreground="dark red")
         status_text.set('Total deductions cannot be greater than total cost')
         return
 
     results_p1.set(f'${split_cost + deductions_p1_f:.2f}')
     results_p2.set(f'${split_cost + deductions_p2_f:.2f}')
+    status_lbl.config(foreground="dark green")
+    status_text.set(f'Formula (P1): (({total_f:.2f} - {total_deductions:.2f}) / 2) '
+                    f'+ {deductions_p1_f:.2f} = {split_cost + deductions_p1_f:.2f}')
 
 
 def sum_deductions(deductions: str):
@@ -31,7 +41,7 @@ def sum_deductions(deductions: str):
         try:
             value += 0 if (d == '') else float(d)
         except ValueError:
-            status_text.set('Deductions must be number values separated by a space')
+            return -1
         
     return value
 
