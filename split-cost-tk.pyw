@@ -12,38 +12,32 @@ def calculate(*args):
         status_text.set('Total must be a number value greater than 0')
         return
 
-    deductions_p1_f = sum_deductions(deductions_p1.get())
-    deductions_p2_f = sum_deductions(deductions_p2.get())
-
-    if deductions_p1_f < 0 or deductions_p2_f < 0:
-        status_lbl.config(foreground="dark red")
-        status_text.set('Deductions are number values separated by a space')
-        return
+    individual_deductions = [0]
+    for i in range(1, split_val.get() + 1):
+        deductions = sum_deductions(deduction_vars[i].get())
+        individual_deductions.append(deductions)
+        
+        if deductions < 0:
+            status_lbl.config(foreground="dark red")
+            status_text.set('Deductions are number values separated by a space')
+            return
     
-    total_deductions = deductions_p1_f + deductions_p2_f
+    total_deductions = sum(individual_deductions)
     total_minus_deductions = total_f - total_deductions
-    split_cost = total_minus_deductions / 2
+    split_cost = total_minus_deductions / split_val.get()
 
     if total_deductions > total_f:
         status_lbl.config(foreground="dark red")
         status_text.set('Total deductions cannot be greater than total cost')
         return
     
-    total_p1 = split_cost + deductions_p1_f
-    total_p2 = split_cost + deductions_p2_f
+    for i in range(1, split_val.get() + 1):
+        individual_total = split_cost + individual_deductions[i]
+        result_vars[i].set(f'${individual_total:.2f}')
 
-    # Update results labels
-    results_p1.set(f'${total_p1:.2f}')
-    results_p2.set(f'${total_p2:.2f}')
-
-    # Update results tooltips
-    Hovertip(results_p1_lbl_2,
-         f'Formula (Person 1): (({total_f:.2f} - {total_deductions:.2f}) / 2) '
-         f'+ {deductions_p1_f:.2f} = {total_p1:.2f}')
-    
-    Hovertip(results_p2_lbl_2,
-         f'Formula (Person 2): (({total_f:.2f} - {total_deductions:.2f}) / 2) '
-         f'+ {deductions_p2_f:.2f} = {total_p2:.2f}')
+        Hovertip(results_frame.nametowidget(f"results_p{i}_lbl_2"),
+            f'Formula (Person {i}): (({total_f:.2f} - {total_deductions:.2f}) / {split_val.get()}) '
+            f'+ {individual_deductions[i]:.2f} = {individual_total:.2f}')
 
     # Display a statusbar message
     status_lbl.config(foreground="dark green")
@@ -69,27 +63,33 @@ def update_ui():
     for child in results_frame.winfo_children():
         child.destroy()
 
+    reset(reset_all=False)
+
     for i in range(1, split_val.get() + 1):
-        deductions_lbl = ttk.Label(deductions_frame, text=f"Person {i}: $", name=f"deductions_p{i}_lbl", font=font_p)
-        deductions_lbl.grid(column=1, row=i, sticky=E, padx=5, pady=5)
-        Hovertip(deductions_lbl, deductions_tooltip_1)
+        deduction_lbl = ttk.Label(deductions_frame, text=f"Person {i}: $", font=font_p)
+        deduction_lbl.grid(column=1, row=i, sticky=E, padx=5, pady=5)
+        Hovertip(deduction_lbl, deductions_tooltip_1)
 
-        StringVar(name=f"deductions_p{i}")
-        deductions_entry = ttk.Entry(deductions_frame, width=24, textvariable=f"deductions_p{i}", name=f"deductions_p{i}_entry", font=font_p)
-        deductions_entry.grid(column=2, row=i, sticky=(W, E), padx=5, pady=5)
-        Hovertip(deductions_entry, deductions_tooltip_2)
+        # deduction = StringVar(root, name=f"deductions_p{i}")
+        deduction_entry = ttk.Entry(deductions_frame, width=24, textvariable=deduction_vars[i], font=font_p)
+        deduction_entry.grid(column=2, row=i, sticky=(W, E), padx=5, pady=5)
+        Hovertip(deduction_entry, deductions_tooltip_2)
 
-        StringVar(name=f"results_p{i}")
-        results_lbl_1 = ttk.Label(results_frame, text=f"Person {i} Owes:", font=font_p)
-        results_lbl_1.grid(column=1, row=i, sticky=E, padx=5, pady=5)
-        results_lbl_2 = ttk.Label(results_frame, textvariable=f"results_p{i}", font=font_h2)
-        results_lbl_2.grid(column=2, row=i, sticky=E, padx=5, pady=5)
+        # result = StringVar(root, name=f"results_p{i}")
+        result_lbl_1 = ttk.Label(results_frame, text=f"Person {i} Owes:", font=font_p)
+        result_lbl_1.grid(column=1, row=i, sticky=E, padx=5, pady=5)
+        result_lbl_2 = ttk.Label(results_frame, textvariable=result_vars[i], name=f"results_p{i}_lbl_2", font=font_h2)
+        result_lbl_2.grid(column=2, row=i, sticky=E, padx=5, pady=5)
 
 
-def reset():
-    var_list = [total, deductions_p1, deductions_p2, results_p1, results_p2]
-    for v in var_list: v.set('')
+def reset(reset_all=True):
+    global deduction_vars, result_vars
+    if reset_all:
+        total.set('')
+        deduction_vars = [StringVar() for i in range(8)]
+
     status_text.set('')
+    result_vars = [StringVar() for i in range(8)]
     total_entry.focus()
 
 
@@ -113,6 +113,8 @@ statusbar.columnconfigure(1, weight=1)
 statusbar.rowconfigure(1, weight=1)
 
 split_val = IntVar(value=2)
+deduction_vars = [StringVar() for i in range(8)]
+result_vars = [StringVar() for i in range(8)]
 
 # Font styles
 font_h1 = ("Arial", 14, "bold")
@@ -171,12 +173,6 @@ for child in mainframe.winfo_children():
 
 for i, child in enumerate(split_frame.winfo_children()):
     child.grid_configure(column=i+1, row=1, padx=5, pady=5, sticky=(W, E))
-
-# for child in deductions_frame.winfo_children():
-#     child.grid_configure(padx=5, pady=5)
-
-# for child in results_frame.winfo_children():
-#     child.grid_configure(padx=5, pady=5)
 
 total_entry.focus()
 root.bind("<Return>", calculate)
