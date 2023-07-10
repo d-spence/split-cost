@@ -62,7 +62,28 @@ def sum_deductions(deductions: str):
 
 
 def update_ui():
-    print("value =", split_val.get())
+    # Remove widgets from frame
+    for child in deductions_frame.winfo_children():
+        child.destroy()
+
+    for child in results_frame.winfo_children():
+        child.destroy()
+
+    for i in range(1, split_val.get() + 1):
+        deductions_lbl = ttk.Label(deductions_frame, text=f"Person {i}: $", name=f"deductions_p{i}_lbl", font=font_p)
+        deductions_lbl.grid(column=1, row=i, sticky=E, padx=5, pady=5)
+        Hovertip(deductions_lbl, deductions_tooltip_1)
+
+        StringVar(name=f"deductions_p{i}")
+        deductions_entry = ttk.Entry(deductions_frame, width=24, textvariable=f"deductions_p{i}", name=f"deductions_p{i}_entry", font=font_p)
+        deductions_entry.grid(column=2, row=i, sticky=(W, E), padx=5, pady=5)
+        Hovertip(deductions_entry, deductions_tooltip_2)
+
+        StringVar(name=f"results_p{i}")
+        results_lbl_1 = ttk.Label(results_frame, text=f"Person {i} Owes:", font=font_p)
+        results_lbl_1.grid(column=1, row=i, sticky=E, padx=5, pady=5)
+        results_lbl_2 = ttk.Label(results_frame, textvariable=f"results_p{i}", font=font_h2)
+        results_lbl_2.grid(column=2, row=i, sticky=E, padx=5, pady=5)
 
 
 def reset():
@@ -125,24 +146,6 @@ deductions_tooltip_1 = ("Deductions are for items which will not be shared.\n"
                         "costing $5, Person 2 won't have to pay for any of it.")
 deductions_tooltip_2 = "Deductions can be integer or decimal values separated by a space"
 
-deductions_p1_lbl = ttk.Label(deductions_frame, text="Person 1: $", font=font_p)
-deductions_p1_lbl.grid(column=1, row=2, sticky=E)
-Hovertip(deductions_p1_lbl, deductions_tooltip_1)
-
-deductions_p1 = StringVar()
-deductions_p1_entry = ttk.Entry(deductions_frame, width=24, textvariable=deductions_p1, font=font_p)
-deductions_p1_entry.grid(column=2, row=2, sticky=(W, E))
-Hovertip(deductions_p1_entry, deductions_tooltip_2)
-
-deductions_p2_lbl = ttk.Label(deductions_frame, text="Person 2: $", font=font_p)
-deductions_p2_lbl.grid(column=1, row=3, sticky=E)
-Hovertip(deductions_p2_lbl, deductions_tooltip_1)
-
-deductions_p2 = StringVar()
-deductions_p2_entry = ttk.Entry(deductions_frame, width=24, textvariable=deductions_p2, font=font_p)
-deductions_p2_entry.grid(column=2, row=3, sticky=(W, E))
-Hovertip(deductions_p2_entry, deductions_tooltip_2)
-
 # Calculate button
 calculate_btn = ttk.Button(mainframe, text="Calculate", command=calculate)
 calculate_btn.grid(column=1, row=4, columnspan=2, sticky=(W, E))
@@ -151,18 +154,6 @@ calculate_btn.grid(column=1, row=4, columnspan=2, sticky=(W, E))
 results_frame = ttk.Labelframe(mainframe, text="Results")
 results_frame.grid(column=1, row=5, columnspan=2, sticky=(W, E))
 results_frame.columnconfigure(2, weight=1)
-
-results_p1 = StringVar()
-results_p1_lbl_1 = ttk.Label(results_frame, text="Person 1 Owes:", font=font_p)
-results_p1_lbl_1.grid(column=1, row=1, sticky=E)
-results_p1_lbl_2 = ttk.Label(results_frame, textvariable=results_p1, font=font_h2)
-results_p1_lbl_2.grid(column=2, row=1, sticky=E)
-
-results_p2 = StringVar()
-results_p2_lbl_1 = ttk.Label(results_frame, text="Person 2 Owes:", font=font_p)
-results_p2_lbl_1.grid(column=1, row=2, sticky=E)
-results_p2_lbl_2 = ttk.Label(results_frame, textvariable=results_p2, font=font_h2)
-results_p2_lbl_2.grid(column=2, row=2, sticky=E)
 
 # Reset button
 reset_btn = ttk.Button(mainframe, text="Reset", command=reset)
@@ -181,13 +172,14 @@ for child in mainframe.winfo_children():
 for i, child in enumerate(split_frame.winfo_children()):
     child.grid_configure(column=i+1, row=1, padx=5, pady=5, sticky=(W, E))
 
-for child in deductions_frame.winfo_children():
-    child.grid_configure(padx=5, pady=5)
+# for child in deductions_frame.winfo_children():
+#     child.grid_configure(padx=5, pady=5)
 
-for child in results_frame.winfo_children():
-    child.grid_configure(padx=5, pady=5)
+# for child in results_frame.winfo_children():
+#     child.grid_configure(padx=5, pady=5)
 
 total_entry.focus()
 root.bind("<Return>", calculate)
 
+update_ui()
 root.mainloop()
