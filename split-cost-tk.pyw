@@ -86,10 +86,10 @@ def reset(reset_all=True):
     global deduction_vars, result_vars
     if reset_all:
         total.set('')
-        deduction_vars = [StringVar() for i in range(8)]
+        for v in deduction_vars: v.set('')
 
     status_text.set('')
-    result_vars = [StringVar() for i in range(8)]
+    for v in result_vars: v.set('')
     total_entry.focus()
 
 
